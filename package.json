@@ -1,6 +1,6 @@
 {
   "name": "@techdivision/opencode-cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "CLI tools for OpenCode plugin management",
   "type": "module",
   "bin": {
@@ -20,6 +20,10 @@
       "import": "./lib/schema.js"
     }
   },
+  "files": [
+    "bin/",
+    "lib/"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/techdivision/opencode-cli.git"
