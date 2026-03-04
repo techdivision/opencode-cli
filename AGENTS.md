@@ -160,10 +160,10 @@ console.log(`${colors.green}  + ${message}${colors.reset}`);
 ### Plugin Discovery (lib/discovery.js)
 
 Plugins are discovered from two locations:
-1. **Global**: `npm config get prefix`/lib/node_modules/
+1. **User config**: `~/.config/opencode/node_modules/`
 2. **Local**: `{targetDir}/node_modules/`
 
-Priority: **last wins** (local overrides global)
+Priority: **last wins** (local overrides user)
 
 ### Plugin Types
 
