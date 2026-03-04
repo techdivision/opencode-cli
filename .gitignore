@@ -1,4 +1,21 @@
+# Dependencies
 node_modules/
-.DS_Store
-*.log
+package-lock.json
+
+# Local plugin directory
+.opencode/
+
+# Environment
 .env
+.env.local
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log
