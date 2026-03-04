@@ -9,25 +9,27 @@ CLI tools for OpenCode plugin management.
 
 ## Installation
 
-### Option A: Global CLI + Global Plugins
+### Option A: User-wide Plugins (recommended)
 
-Install CLI and plugins globally, use from any project:
+Install CLI globally and plugins in your user config directory:
 
 ```bash
 # Install CLI globally
 npm install -g github:techdivision/opencode-cli
 
-# Install plugins globally
-npm install -g github:techdivision/opencode-plugins
+# Install plugins in user config directory
+cd ~/.config/opencode
+npm install github:techdivision/opencode-plugins
 
-# Use from any project
+# Link plugins (from user config directory)
+opencode-link              # Links directly to ~/.config/opencode/commands/, etc.
+
+# Or link in any project
 cd /path/to/my-project
-opencode-link              # Link standard plugins
-opencode-link list         # List available plugins
-opencode-link status       # Show current links
+opencode-link              # Links to .opencode/commands/, etc.
 ```
 
-### Option B: Local Installation (per project)
+### Option B: Project-local Plugins
 
 Install plugins locally in each project:
 
@@ -62,7 +64,7 @@ Plugins are discovered from two locations (priority: **last wins**):
 
 | Priority | Location | Path |
 |----------|----------|------|
-| 1 (low) | Global | `npm config get prefix`/lib/node_modules/ |
+| 1 (low) | User config | `~/.config/opencode/node_modules/` |
 | 2 (high) | Local | `{project}/.opencode/node_modules/` |
 
 **Important**: If a plugin exists in both locations, the **local** version wins.
