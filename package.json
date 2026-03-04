@@ -1,0 +1,38 @@
+{
+  "name": "@techdivision/opencode-cli",
+  "version": "0.1.0",
+  "description": "CLI tools for OpenCode plugin management",
+  "type": "module",
+  "bin": {
+    "opencode-link": "./bin/opencode-link.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./lib/index.js"
+    },
+    "./discovery": {
+      "import": "./lib/discovery.js"
+    },
+    "./linker": {
+      "import": "./lib/linker.js"
+    },
+    "./schema": {
+      "import": "./lib/schema.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/techdivision/opencode-cli.git"
+  },
+  "keywords": [
+    "opencode",
+    "cli",
+    "plugins",
+    "linker"
+  ],
+  "author": "TechDivision GmbH",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
