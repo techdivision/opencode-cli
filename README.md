@@ -9,32 +9,67 @@ CLI tools for OpenCode plugin management.
 
 ## Installation
 
-### Global (Recommended)
+### Option A: Global CLI + Global Plugins
 
-Install once, use everywhere:
+Install CLI and plugins globally, use from any project:
 
 ```bash
+# Install CLI globally
 npm install -g github:techdivision/opencode-cli
+
+# Install plugins globally
+npm install -g github:techdivision/opencode-plugins
+
+# Use from any project
+cd /path/to/my-project
+opencode-link              # Link standard plugins
+opencode-link list         # List available plugins
+opencode-link status       # Show current links
 ```
 
-Then use from any project:
+### Option B: Local Installation (per project)
+
+Install plugins locally in each project:
 
 ```bash
 cd /path/to/my-project
-npx opencode-link              # Link standard plugins
-npx opencode-link list         # List available plugins
-npx opencode-link status       # Show current links
-```
-
-### As Dependency
-
-Used automatically when you install `@techdivision/opencode-plugins`:
-
-```bash
-cd /path/to/my-project/.opencode
+mkdir -p .opencode && cd .opencode
 npm install github:techdivision/opencode-plugins
 npx opencode-link
+cd ..
 ```
+
+### Option C: Global CLI + Local Plugins
+
+Install CLI globally, plugins per project:
+
+```bash
+# Install CLI globally (once)
+npm install -g github:techdivision/opencode-cli
+
+# In each project: install plugins locally
+cd /path/to/my-project/.opencode
+npm install github:techdivision/opencode-plugins
+cd ..
+
+# Run from project root
+opencode-link list         # Finds plugins in .opencode/node_modules/
+```
+
+## Plugin Discovery
+
+Plugins are discovered from two locations (priority: **last wins**):
+
+| Priority | Location | Path |
+|----------|----------|------|
+| 1 (low) | Global | `npm config get prefix`/lib/node_modules/ |
+| 2 (high) | Local | `{project}/.opencode/node_modules/` |
+
+**Important**: If a plugin exists in both locations, the **local** version wins.
+
+Each location can contain:
+- **Monorepo**: Package with subdirectories containing `.opencode/` (e.g., opencode-plugins)
+- **Singlerepo**: Package with `plugin.json` + content dirs in root (e.g., opencode-plugin-time-tracking)
 
 ## Commands
 
@@ -54,17 +89,6 @@ npx opencode-link
 |------|-------------|
 | `--target-dir=<path>` | Override target directory |
 | `--singular` | Use singular directory names (agent/ instead of agents/) |
-
-## Plugin Discovery
-
-Plugins are discovered from two locations (priority: last wins):
-
-1. **Global**: `npm config get prefix`/lib/node_modules/
-2. **Local**: `{project}/.opencode/node_modules/`
-
-Each location can contain:
-- **Monorepo**: Package with subdirectories containing `.opencode/` (e.g., opencode-plugins)
-- **Singlerepo**: Package with `plugin.json` + content dirs in root (e.g., opencode-plugin-time-tracking)
 
 ## Programmatic Usage
 
