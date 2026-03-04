@@ -102,8 +102,28 @@ function formatPluginLabel(descriptor) {
 
 // Target directory for linking (set in main() after argument parsing)
 let TARGET_DIR = null;
+let TARGET_SOURCE = null;
 let PLUGINS = null;
 let CONTENT_TYPES = null;
+
+/**
+ * Gets the OpenCode user config directory path.
+ * 
+ * @returns {string} Path to ~/.config/opencode
+ */
+function getUserConfigDir() {
+  return path.join(os.homedir(), '.config', 'opencode');
+}
+
+/**
+ * Checks if the given directory is the OpenCode user config directory.
+ * 
+ * @param {string} dir - Directory to check
+ * @returns {boolean} True if dir is ~/.config/opencode
+ */
+function isUserConfigDir(dir) {
+  return path.resolve(dir) === getUserConfigDir();
+}
 
 /**
  * Searches for opencode.json starting from current directory and going up.
@@ -124,13 +144,28 @@ function findOpencodeConfig() {
 
 /**
  * Resolves the target directory for linking.
+ * 
+ * Detection order:
+ * 1. CLI --target-dir flag
+ * 2. OpenCode user config directory (~/.config/opencode)
+ * 3. Directory with opencode.json (search upwards)
+ * 4. .opencode subdirectory
+ * 5. Default: {cwd}/.opencode
  */
 function resolveTargetDir(cliTargetDir) {
   if (cliTargetDir) {
+    const resolved = path.resolve(process.cwd(), cliTargetDir);
     return {
-      targetDir: path.resolve(process.cwd(), cliTargetDir),
-      source: 'cli',
+      targetDir: resolved,
+      source: isUserConfigDir(resolved) ? 'user-config' : 'cli',
     };
+  }
+
+  const cwd = process.cwd();
+
+  // Check if we're in the OpenCode user config directory
+  if (isUserConfigDir(cwd)) {
+    return { targetDir: cwd, source: 'user-config' };
   }
 
   const configDir = findOpencodeConfig();
@@ -140,8 +175,6 @@ function resolveTargetDir(cliTargetDir) {
       source: 'auto',
     };
   }
-
-  const cwd = process.cwd();
 
   // Check if we're already in a .opencode directory
   if (path.basename(cwd) === '.opencode') {
@@ -199,15 +232,17 @@ function ensureDirectoryStructure() {
     }
   }
 
-  // Ensure opencode.json exists
-  const configPath = path.join(TARGET_DIR, 'opencode.json');
-  if (!fs.existsSync(configPath)) {
-    const defaultConfig = {
-      $schema: 'https://opencode.ai/config.json',
-      instructions: ['guideline/*.md'],
-    };
-    fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2) + '\n');
-    logSuccess('opencode.json created');
+  // Ensure opencode.json exists (skip for user-config directory which uses config.json)
+  if (TARGET_SOURCE !== 'user-config') {
+    const configPath = path.join(TARGET_DIR, 'opencode.json');
+    if (!fs.existsSync(configPath)) {
+      const defaultConfig = {
+        $schema: 'https://opencode.ai/config.json',
+        instructions: ['guideline/*.md'],
+      };
+      fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2) + '\n');
+      logSuccess('opencode.json created');
+    }
   }
 }
 
@@ -629,8 +664,9 @@ async function main() {
   // Resolve target directory
   const { targetDir, source } = resolveTargetDir(cliTargetDir);
   TARGET_DIR = targetDir;
+  TARGET_SOURCE = source;
 
-  // Discover plugins (global + local)
+  // Discover plugins
   PLUGINS = discoverPlugins(TARGET_DIR);
   CONTENT_TYPES = getContentTypes(PLUGINS);
 
@@ -638,7 +674,9 @@ async function main() {
   log('='.repeat(50), 'gray');
 
   // Show target directory info
-  if (source === 'cli') {
+  if (source === 'user-config') {
+    log(`Target: ${TARGET_DIR} (user config directory)`, 'cyan');
+  } else if (source === 'cli') {
     log(`Target: ${TARGET_DIR} (from --target-dir)`, 'cyan');
   } else if (source === 'auto') {
     log(`Target: ${TARGET_DIR} (auto-detected opencode.json)`, 'cyan');
