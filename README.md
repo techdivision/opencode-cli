@@ -69,9 +69,124 @@ Plugins are discovered from two locations (priority: **last wins**):
 
 **Important**: If a plugin exists in both locations, the **local** version wins.
 
-Each location can contain:
-- **Monorepo**: Package with subdirectories containing `.opencode/` (e.g., opencode-plugins)
-- **Singlerepo**: Package with `plugin.json` + content dirs in root (e.g., opencode-plugin-time-tracking)
+## Plugin Types
+
+### Monorepo Plugins
+
+A monorepo contains multiple plugins in subdirectories, each with a `.opencode/` folder.
+
+**Example:** [opencode-plugins](https://github.com/techdivision/opencode-plugins)
+
+```
+opencode-plugins/
+├── package.json
+├── core/
+│   └── .opencode/
+│       ├── commands/
+│       ├── agents/
+│       └── skills/
+├── pm/
+│   └── .opencode/
+│       ├── commands/
+│       └── agents/
+└── magento/
+    └── .opencode/
+        └── commands/
+```
+
+Install: `npm install github:techdivision/opencode-plugins`
+
+### Singlerepo Plugins
+
+A singlerepo is a standalone plugin with content directories in the package root.
+
+**Example:** [opencode-plugin-magento](https://github.com/techdivision/opencode-plugin-magento)
+
+```
+opencode-plugin-magento/
+├── package.json
+├── plugin.json          # Plugin metadata (name, category, hooks)
+├── commands/
+│   ├── quality.md
+│   └── deploy.md
+├── agents/
+│   └── magento-expert.md
+└── skills/
+    └── magento/
+        └── ...
+```
+
+Install: `npm install github:techdivision/opencode-plugin-magento`
+
+## How Linking Works
+
+When you run `opencode-link <plugin>`, the CLI:
+
+1. **Discovers** plugins from user config and local `node_modules/`
+2. **Creates symlinks** from target directory to plugin source files
+3. **Runs postlink hooks** if defined in `plugin.json`
+
+### Example: Linking in a Project
+
+```bash
+cd /path/to/my-project
+opencode-link magento
+```
+
+**Before:**
+```
+my-project/
+└── .opencode/
+    └── node_modules/
+        └── @techdivision/opencode-plugin-magento/
+            └── commands/
+                ├── quality.md
+                └── deploy.md
+```
+
+**After:**
+```
+my-project/
+└── .opencode/
+    ├── commands/
+    │   ├── magento.quality.md -> ../node_modules/.../commands/quality.md
+    │   └── magento.deploy.md  -> ../node_modules/.../commands/deploy.md
+    └── node_modules/
+        └── ...
+```
+
+### Example: Linking in User Config
+
+```bash
+cd ~/.config/opencode
+opencode-link time-tracking
+```
+
+**Result:**
+```
+~/.config/opencode/
+├── config.json              # OpenCode main config (not touched)
+├── commands/
+│   ├── time-tracking.init.md -> ./node_modules/.../commands/init.md
+│   └── time-tracking.timesheet.md -> ...
+├── agents/
+│   └── time-tracking.md -> ./node_modules/.../agents/time-tracking.md
+└── node_modules/
+    └── @techdivision/opencode-plugin-time-tracking/
+        └── ...
+```
+
+### Symlink Naming Convention
+
+| Content Type | Source File | Target Symlink |
+|--------------|-------------|----------------|
+| commands | `commands/deploy.md` | `commands/{plugin}.deploy.md` |
+| agents | `agents/expert.md` | `agents/expert.md` |
+| guidelines | `guidelines/style.md` | `guidelines/style.md` |
+| skills | `skills/group/skill-name/` | `skills/skill-name/` |
+| tools | `tools/my-tool.ts` | `tools/my-tool.ts` |
+
+**Note:** Commands are prefixed with the plugin name to avoid conflicts between plugins.
 
 ## Commands
 
