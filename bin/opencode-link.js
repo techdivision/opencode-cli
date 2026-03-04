@@ -47,13 +47,6 @@ import { generateCombinedSchema, ensureProjectConfigSchema } from '../lib/schema
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// PROJECT_ROOT is where npm install was run (the consuming project)
-const PROJECT_ROOT = process.cwd();
-
-// MONOREPO_DIR is where this script lives (the opencode-plugins package)
-// Used for backwards compatibility with monorepo plugin structure
-const MONOREPO_DIR = path.resolve(__dirname, '..');
-
 // Colors for terminal output
 const colors = {
   reset: '\x1b[0m',
@@ -637,8 +630,8 @@ async function main() {
   const { targetDir, source } = resolveTargetDir(cliTargetDir);
   TARGET_DIR = targetDir;
 
-  // Discover plugins (global + monorepo + local)
-  PLUGINS = discoverPlugins(TARGET_DIR, MONOREPO_DIR);
+  // Discover plugins (global + local)
+  PLUGINS = discoverPlugins(TARGET_DIR);
   CONTENT_TYPES = getContentTypes(PLUGINS);
 
   log('\nOpenCode Plugin Linker', 'bright');
