@@ -448,7 +448,6 @@ function showStatus() {
   log('\nOpenCode Plugin Status', 'bright');
   log('='.repeat(50), 'gray');
   log(`Target:  ${TARGET_DIR}`, 'gray');
-  log(`Monorepo: ${MONOREPO_DIR}`, 'gray');
   log('');
 
   const linkedPlugins = getLinkedPlugins();
