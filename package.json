@@ -1,6 +1,6 @@
 {
   "name": "@techdivision/opencode-cli",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "CLI tools for OpenCode plugin management",
   "type": "module",
   "bin": {
@@ -18,6 +18,12 @@
     },
     "./schema": {
       "import": "./lib/schema.js"
+    },
+    "./skills-registry": {
+      "import": "./lib/skills-registry.js"
+    },
+    "./external-skills": {
+      "import": "./lib/external-skills.js"
     }
   },
   "files": [
