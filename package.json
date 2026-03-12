@@ -18,6 +18,12 @@
     },
     "./schema": {
       "import": "./lib/schema.js"
+    },
+    "./skills-registry": {
+      "import": "./lib/skills-registry.js"
+    },
+    "./external-skills": {
+      "import": "./lib/external-skills.js"
     }
   },
   "files": [
