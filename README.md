@@ -188,17 +188,107 @@ opencode-link time-tracking
 
 **Note:** Commands are prefixed with the plugin name to avoid conflicts between plugins.
 
+## External Skills
+
+External skills are agent skills sourced directly from GitHub repositories, curated via [skills.sh](https://skills.sh). They are downloaded and symlinked automatically — no npm install required.
+
+### Quick Start
+
+```bash
+# Search for skills
+opencode-link external-skills:find react
+
+# Add a skill to your project (updates opencode-project.json + installs immediately)
+opencode-link external-skills:add vercel-labs/agent-skills vercel-react-best-practices
+
+# Show installed external skills
+opencode-link external-skills:list
+```
+
+### How It Works
+
+1. Skills are configured in `.opencode/opencode-project.json` under `externalSkills`
+2. `opencode-link` (default run) detects the config and downloads/links them automatically
+3. Files land in `.opencode/.external-skills/<skill-name>/SKILL.md` (gitignored)
+4. Symlinks are created in `.opencode/skills/<skill-name>/`
+
+### Configuration (`opencode-project.json`)
+
+```json
+{
+  "externalSkills": [
+    {
+      "source": "vercel-labs/agent-skills",
+      "skills": ["vercel-react-best-practices", "vercel-nextjs-app-router"],
+      "branch": "main",
+      "category": "optional"
+    },
+    {
+      "source": "some-org/all-their-skills"
+    }
+  ]
+}
+```
+
+| Field | Required | Default | Description |
+|-------|----------|---------|-------------|
+| `source` | yes | — | GitHub `owner/repo` |
+| `skills` | no | all | Skill names to install. Omit to install all skills in the repo. |
+| `branch` | no | `main` | Git branch to download from |
+| `category` | no | `optional` | `standard` or `optional` |
+
+### Security Checks
+
+Before downloading, each skill is audited via three security partners (ATH, Socket, Snyk):
+
+| Risk level | Behaviour |
+|------------|-----------|
+| `safe` / `low` | Installed automatically |
+| `medium` | Installed with a warning |
+| `high` | Interactive confirmation required (non-interactive: aborted) |
+| `critical` | Always skipped |
+
+Use `--force` to bypass high-risk prompts or to force reinstall an up-to-date skill.
+
+> **Note:** Security data is fetched from `add-skill.vercel.sh`. If the service is unavailable, installation continues with a warning — it never blocks.
+
+### Update Detection
+
+Skills store a SHA fingerprint (`.skill-meta.json`) after download. Subsequent runs skip skills whose SHA hasn't changed. Use `external-skills:update` to explicitly pull the latest version.
+
+```bash
+# Re-download skills where the upstream SHA changed
+opencode-link external-skills:update
+
+# Force-reinstall all skills regardless of SHA
+opencode-link --force external-skills:install
+```
+
+### GitHub Rate Limits
+
+The GitHub API is used to fetch file SHAs. Set `GITHUB_TOKEN` to increase the rate limit:
+
+```bash
+export GITHUB_TOKEN=ghp_...
+opencode-link external-skills:install
+```
+
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `opencode-link` | Link all standard plugins |
+| `opencode-link` | Link all standard plugins + install configured external skills |
 | `opencode-link all` | Link ALL plugins (standard + optional) |
 | `opencode-link <plugin>` | Link a specific plugin |
-| `opencode-link list` | List available plugins |
+| `opencode-link list` | List available plugins and configured external skills |
 | `opencode-link status` | Show current links |
-| `opencode-link clean` | Remove all symlinks |
+| `opencode-link clean` | Remove all symlinks and `.external-skills/` directory |
 | `opencode-link schema` | Regenerate schema |
+| `opencode-link external-skills:find <query>` | Search skills.sh for skills |
+| `opencode-link external-skills:add <owner/repo> <skill>` | Add skill to config and install |
+| `opencode-link external-skills:install` | Install/update all configured external skills |
+| `opencode-link external-skills:update` | Re-download skills with upstream changes |
+| `opencode-link external-skills:list` | Show installed external skills with security status |
 
 ## Options
 
@@ -206,6 +296,7 @@ opencode-link time-tracking
 |------|-------------|
 | `--target-dir=<path>` | Override target directory |
 | `--singular` | Use singular directory names (agent/ instead of agents/) |
+| `--force` | Force reinstall even if up to date; bypass high-risk security prompt |
 
 ## Programmatic Usage
 
@@ -215,14 +306,21 @@ You can also use the CLI modules programmatically:
 import { discoverPlugins, getContentTypes } from '@techdivision/opencode-cli/discovery';
 import { createSymlink, getItemsToLink } from '@techdivision/opencode-cli/linker';
 import { generateCombinedSchema } from '@techdivision/opencode-cli/schema';
+import { searchSkills, fetchAuditData } from '@techdivision/opencode-cli/skills-registry';
+import { installExternalSkills, listInstalledExternalSkills } from '@techdivision/opencode-cli/external-skills';
 
 // Discover plugins
 const plugins = discoverPlugins('/path/to/.opencode');
 console.log(`Found ${plugins.size} plugins`);
 
-// Get all content types
-const types = getContentTypes(plugins);
-console.log(`Content types: ${types.join(', ')}`);
+// Search skills.sh
+const results = await searchSkills('react');
+
+// Install configured external skills
+await installExternalSkills('/path/to/.opencode', { force: false });
+
+// List installed external skills
+const installed = listInstalledExternalSkills('/path/to/.opencode');
 ```
 
 ## License
