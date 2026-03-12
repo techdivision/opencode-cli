@@ -34,7 +34,7 @@ This release introduces full integration with the skills.sh database, enabling u
 - `files` array in package.json for explicit publish contents
 - npm provenance support for supply chain security
 
-## [0.1.0] - 2026-02-01
+## [0.1.0] - 2026-03-04
 
 ### Added
 - User config directory support (`~/.config/opencode/node_modules/`)
