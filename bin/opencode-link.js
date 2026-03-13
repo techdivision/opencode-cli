@@ -262,7 +262,7 @@ function ensureDirectoryStructure() {
     if (!fs.existsSync(configPath)) {
       const defaultConfig = {
         $schema: 'https://opencode.ai/config.json',
-        instructions: ['.opencode/guidelines/*.md'],
+        instructions: ['guidelines/*.md'],
       };
       fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2) + '\n');
       logSuccess('opencode.json created');
