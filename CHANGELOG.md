@@ -31,4 +31,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `package.json` - Updated dependencies and version
 
 ### Details
-This release introduces comprehensive integration with the skills.sh database, enabling users to discover, install, and manage custom skills. The implementation provides seamless interoperability with the OpenCode plugin system.
+This release introduces full integration with the skills.sh database, enabling users to discover, install, and manage custom skills. The implementation provides seamless interoperability with the OpenCode plugin system.
+
+## [0.2.0] - 2026-03-04
+
+### Added
+- GitHub Actions workflow for automatic npm publishing on version tags
+- `files` array in package.json for explicit publish contents
+- npm provenance support for supply chain security
+
+## [0.1.0] - 2026-03-04
+
+### Added
+- User config directory support (`~/.config/opencode/node_modules/`)
+- Direct linking to `~/.config/opencode` when running from user config directory
+- Skip `opencode.json` creation in user config directory (uses `config.json`)
+
+### Fixed
+- Singlerepo plugin source directory detection (use `descriptor.type` instead of `isUnified`)
+
+### Changed
+- Removed npm global prefix lookup - plugins are now discovered from user config and local only
