@@ -1,6 +1,6 @@
 {
   "name": "@techdivision/opencode-cli",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "CLI tools for OpenCode plugin management",
   "type": "module",
   "bin": {
